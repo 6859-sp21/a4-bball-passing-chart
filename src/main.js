@@ -43,7 +43,7 @@ function set_all_box_color(g, intensity_2D) {
     for (var a = -25; a < 25; a += S) {
         for (var b = 0; b < 94; b += S) {
             // console.log(d3.select('box-' + a + '-' + b))
-            g.select('#box-' + a + '-' + b).style('fill', color(intensity_2D[(a + 25) / 2][b / 2]))
+            g.select('#box-' + a + '-' + b).style('fill', color(intensity_2D[(a + 25) / 2][b / 2])).style('fill-opacity', '0.5')
         }
     }
 }
@@ -54,6 +54,7 @@ function draw_rectangle(i, j, dst, g) {
     g.append('rect')
         .style('stroke', 'none')
         .style('fill-opacity', '0.5')
+        .style('transition', '0.4s')
         .attr('id', 'box-' + i + '-' + j)
         .attr('x', x(i))
         .attr('y', y(j))
@@ -63,7 +64,7 @@ function draw_rectangle(i, j, dst, g) {
             // console.log('CLICKED');
             // console.log(dst_2D)
             set_all_box_color(g, dst_2D)
-            g.select('#box-' + i + '-' + j).style('fill', 'black')
+            g.select('#box-' + i + '-' + j).style('fill', 'black').style('fill-opacity', '1.0')
         })
 }
 
