@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { scaleBand } from 'd3';
 
 
 const width = 960;
@@ -42,13 +43,14 @@ function set_all_box_color(g, intensity_2D) {
     for (var a = -25; a < 25; a += S) {
         for (var b = 0; b < 94; b += S) {
             // console.log(d3.select('box-' + a + '-' + b))
-            g.select('#box-' + a + '-' + b).style('fill', color(intensity_2D[a + 25][b]))
+            g.select('#box-' + a + '-' + b).style('fill', color(intensity_2D[(a + 25) / 2][b / 2]))
         }
     }
 }
 
 function draw_rectangle(i, j, dst, g) {
-    var dst_2D = dst[25 + i][j]
+
+    var dst_2D = dst[(25 + i) / 2][j / 2]
     g.append('rect')
         .style('stroke', 'none')
         .style('fill-opacity', '0.5')
@@ -73,11 +75,28 @@ function stubbed_src_data() {
     return Array.from(Array(50), () => Array.from(Array(94), Math.random));
 }
 
-const S = 2
-const src = stubbed_src_data()
-const dst = stubbed_dst_data()
+// data must be wrapped into an async function, and it returns a Promise
+async function _src_data(d3) {
+    return d3
+        .json(
+            'https://raw.githubusercontent.com/6859-sp21/a4-bball-passing-chart/data_processing/src/src.txt'
+        )
+}
 
-function _chart(d3, width, height) {
+// data must be wrapped into an async function, and it returns a Promise
+async function _dst_data(d3) {
+    return d3
+        .json(
+            'https://raw.githubusercontent.com/6859-sp21/a4-bball-passing-chart/data_processing/src/dst.txt'
+        )
+}
+
+const S = 2
+// const src = stubbed_src_data()
+// const dst = stubbed_dst_data()
+
+
+function _chart(d3, width, height, src, dst) {
     const svg = d3
         .select('#joyplot')
         .append('svg')
@@ -250,12 +269,12 @@ function _chart(d3, width, height) {
 
 
 
-function _reset_button() {
+function _reset_button(src) {
     const svg = d3
         .select('#reset_button')
         .append('svg')
-        .attr('width', 50)
-        .attr('height', 20)
+        .attr('width', 100)
+        .attr('height', 100)
         .attr('viewBox', `0,0,100,100`);
 
     const button = svg.append('rect')
@@ -263,10 +282,11 @@ function _reset_button() {
         .attr('width', 100)
         .attr('height', 100)
         .style('fill', 'brown')
-        .style('stroke', '#000')
+        .style('stroke', '#add8e6')
         .on('click', function () {
             set_all_box_color(d3, src);
         });
+
 }
 
 
@@ -274,8 +294,12 @@ function _reset_button() {
 // Data flow
 async function main(d3, width) {
     // height = 1000;
-    const chart = _chart(d3, width, height);
-    const reset_button = _reset_button();
+    const src = await _src_data(d3);
+    console.log(src)
+    const dst = await _dst_data(d3);
+    console.log(dst);
+    const chart = _chart(d3, width, height, src, dst);
+    const reset_button = _reset_button(src);
 }
 
 main(d3, width);
