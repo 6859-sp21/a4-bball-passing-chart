@@ -4,20 +4,37 @@
 <head>
     <!-- Minimal HTML head elements -->
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
     <title>Mapping Basketball Passes</title>
 </head>
 
 <body>
-    <!-- Title of the page -->
-    <h1>Mapping Basketball Passes</h1>
+    <section class="wrapper style1 align-center inner">
+        <!-- Title of the page -->
+        <h1 class="page-header">Tracking Ball Movement in the NBA: A Data Visualization</h1>
+        <h2 class="page-sub-header">We dissected the 2015-2016 NBA season and asked: given a player with the ball in a
+            certain location on the court, what comes next?</h2>
 
-    <!-- Empty placeholders -->
-    <div id="joyplot"></div>
+        <p>NBA players and do one of 3 things with a basketball: (1) dribble, (2) pass, and (3) shoot. While many
+            existing
+            visualizations effectively depict shot percentages, few explore ball movement. Here, we take a closer look
+            at
+            ball movement through the lens of passes and shot percentages. Click a spot on the court below, and see the
+            heat
+            map of possible pass locations. TODO
+        </p>
 
-    <div id="reset_button"></div>
+        <h2 class="authors"></h2>
 
-    <!-- JavaScript code to fill the empty placeholders -->
-    <script src="./main.min.js"></script>
+        <!-- Empty placeholders -->
+        <div id="joyplot"></div>
+
+        <div id="reset_button"></div>
+
+        <!-- JavaScript code to fill the empty placeholders -->
+        <script src="./main.min.js"></script>
+
+    </section>
 </body>
 
 </html>
