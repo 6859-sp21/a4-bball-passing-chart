@@ -52,16 +52,29 @@ def getTrajectories(events):
         for moment in event['moments']:
             ball_x = moment[5][0][2]
             ball_y = moment[5][0][3]
-            event_locs.append((ball_x, ball_y))
+            event_locs.append([ball_x, ball_y])
 
         if len(event_locs) > 50:
             game_locs.append(event_locs)
             
-    # Make all trajectories go from left to right
+    # Make all trajectories line up defense -> offense half
     for traj in game_locs:
-        if traj[0][0] > traj[-1][0]:
-            traj.reverse()
-            
+        init_x = traj[0][0]
+        final_x = traj[-1][0]
+        
+        init_in_left = init_x < 46
+        final_in_left = final_x < 46
+      
+        if init_in_left != final_in_left: # crosses the half-court line
+            # Make trajectory move from left to right
+            if init_x > final_x:
+                traj.reverse()
+        else: # assume offensive play
+            if final_in_left: # flip over to the offensive side
+                for point in traj:
+                    dist_from_half = 46 - point[0]
+                    point[0] += (2*dist_from_half)
+                    
     return game_locs
 
 def getPasses(game_locs, overall_angle_threshold=0.05, ind_angle_threshold = 0.25, min_dist = 7.0):
