@@ -6,6 +6,10 @@ const width = 500;
 const usableWidth = width; // Math.min(500, width);
 const height = usableWidth / 50 * 94;
 
+var chart_margin = { top: 20, right: 30, bottom: 40, left: 90 },
+    chart_width = 940 - chart_margin.left - chart_margin.right,
+    chart_height = 500 - chart_margin.top - chart_margin.bottom;
+
 const margins = 20;
 const pi = Math.PI / 180;
 
@@ -39,17 +43,51 @@ function color(c) {
     return d3.scaleSequential(d3.interpolateOrRd).domain([0, 1])(c);
 }
 
-function set_all_box_color(g, intensity_2D) {
+function set_all_box_color(g, intensity_2D, mouseover_vals) {
+
+    var mouseover = function (d) {
+        d3.select('#tooltip')
+            .style("opacity", 1)
+        d3.select(this)
+            .style("stroke", "black")
+            .style("opacity", 1)
+    }
+    var mousemove = function (d) {
+        var id = d3.select(this).attr('id').substring(5);
+        var split_id = id.split('-');
+        var a1 = parseInt(split_id[0]);
+        var b1 = parseInt(split_id[1]);
+        d3.select('#tooltip')
+            .html("Passes from basketball to here: " + mouseover_vals[(a1 + 25) / 2][b1 / 2])
+            .style("left", (d3.mouse(this)[0]) + "px")
+            .style("top", (d3.mouse(this)[1] + 100) + "px")
+    }
+    var mouseleave = function (d) {
+        d3.select('#tooltip')
+            .style("opacity", 0)
+        d3.select(this)
+            .style("stroke", "none")
+            .style("opacity", 0.8)
+    }
+
     for (var a = -25; a < 25; a += S) {
         for (var b = 0; b < 94; b += S) {
             // console.log(d3.select('box-' + a + '-' + b))
-            g.select('#box-' + a + '-' + b).style('fill', color(intensity_2D[(a + 25) / 2][b / 2])).style('fill-opacity', '0.5')
+            g.select('#box-' + a + '-' + b)
+                .style('fill', color(intensity_2D[(a + 25) / 2][b / 2]))
+                .style('fill-opacity', '0.5')
+                .on('mouseover', mouseover)
+                .on('mousemove', mousemove)
+                .on('mouseleave', mouseleave)
         }
     }
 }
 
-function draw_rectangle(i, j, dst, g, mouseover, mousemove, mouseleave) {
+function draw_rectangle(i, j, dst, g, dst_mouseover, chart_data) {
+    // Three function that change the tooltip when user hover / move / leave a cell
     var dst_2D = dst[(25 + i) / 2][j / 2]
+    var dst_mouseover_2D = dst_mouseover[(25 + i) / 2][j / 2]
+    var chart_data_2D = chart_data[(25 + i) / 2][j / 2]
     g.append('rect')
         .style('stroke', 'none')
         .style('fill-opacity', '0.5')
@@ -64,12 +102,10 @@ function draw_rectangle(i, j, dst, g, mouseover, mousemove, mouseleave) {
         .on('click', function () {
             // console.log('CLICKED');
             // console.log(dst_2D)
-            set_all_box_color(g, dst_2D)
+            set_all_box_color(g, dst_2D, dst_mouseover_2D)
             g.select('#box-' + i + '-' + j).style('fill', 'black').style('fill-opacity', '1.0')
+            draw_bar_chart(g, chart_data_2D);
         })
-        .on('mouseover', mouseover)
-        .on('mousemove', mousemove)
-        .on('mouseleave', mouseleave)
 }
 
 function stubbed_dst_data() {
@@ -88,6 +124,13 @@ async function _src_data(d3) {
         )
 }
 
+async function _src_raw_data(d3) {
+    return d3
+        .json(
+            'https://raw.githubusercontent.com/6859-sp21/a4-bball-passing-chart/data_processing/src/src_raw.txt'
+        )
+}
+
 // data must be wrapped into an async function, and it returns a Promise
 async function _dst_data(d3) {
     return d3
@@ -96,8 +139,15 @@ async function _dst_data(d3) {
         )
 }
 
+async function _dst_raw_data(d3) {
+    return d3
+        .json(
+            'https://raw.githubusercontent.com/6859-sp21/a4-bball-passing-chart/data_processing/src/dst_raw.txt'
+        )
+}
+
 async function _load_chart_data(d3) {
-    return d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv");
+    return d3.json("https://raw.githubusercontent.com/6859-sp21/a4-bball-passing-chart/data_processing/src/shot_pct_cleaned.json");
 }
 
 const S = 2
@@ -105,7 +155,7 @@ const S = 2
 // const dst = stubbed_dst_data()
 
 
-function _chart(d3, width, height, src, dst, chart_data) {
+function _chart(d3, width, height, src, dst, src_raw, dst_raw, chart_data) {
     const svg = d3
         .select('#joyplot')
         .append('svg')
@@ -266,6 +316,7 @@ function _chart(d3, width, height, src, dst, chart_data) {
     // create a tooltip
     var Tooltip = d3.select("#joyplot")
         .append("div")
+        .attr('id', 'tooltip')
         .style("opacity", 0)
         .style('position', 'absolute')
         .attr("class", "tooltip")
@@ -275,91 +326,98 @@ function _chart(d3, width, height, src, dst, chart_data) {
         .style("border-radius", "5px")
         .style("padding", "5px")
 
-    // Three function that change the tooltip when user hover / move / leave a cell
-    var mouseover = function (d) {
-        Tooltip
-            .style("opacity", 1)
-        d3.select(this)
-            .style("stroke", "black")
-            .style("opacity", 1)
-    }
-    var mousemove = function (d) {
-        Tooltip
-            .html("The exact value of<br>this cell is: TBD")
-            .style("left", (d3.mouse(this)[0]) + "px")
-            .style("top", (d3.mouse(this)[1]) + "px")
-    }
-    var mouseleave = function (d) {
-        Tooltip
-            .style("opacity", 0)
-        d3.select(this)
-            .style("stroke", "none")
-            .style("opacity", 0.8)
-    }
 
     for (var a = -25; a < 25; a += S) {
         for (var b = 0; b < 94; b += S) {
-            draw_rectangle(a, b, dst, g, mouseover, mousemove, mouseleave);
+            draw_rectangle(a, b, dst, g, dst_raw, chart_data);
         }
     }
     // console.log('GOT HERE!');
     // console.log(src);
 
-    set_all_box_color(g, src)
+    set_all_box_color(g, src, src_raw)
     // console.log('AND HERE!');
-    draw_bar_chart(svg, g, chart_data)
 
-    return svg.node();
-}
-
-function draw_bar_chart(svg, g, data) {
-    // Add X axis
-    var chart_margin = { top: 20, right: 30, bottom: 40, left: 90 },
-        chart_width = 460 - chart_margin.left - chart_margin.right,
-        chart_height = 400 - chart_margin.top - chart_margin.bottom;
-
-    // append the svg object to the body of the page
-    var svg = d3.select("#joyplot")
+    d3.select("#joyplot")
         .append("svg")
         .attr("width", height + chart_margin.left + chart_margin.right)
         .attr("height", width + chart_margin.top + chart_margin.bottom)
         .append("g")
         .attr("transform",
-            "translate(" + chart_margin.left + "," + chart_margin.top + ")");
+            "translate(" + chart_margin.left + "," + chart_margin.top + ")")
+        .attr('id', 'bar-chart');
 
-    var chart_label = (v) => {
-        return '<img src="https://secure.espn.com/combiner/i?img=/i/teamlogos/nba/500/bkn.png&amp;w=56&amp;h=56" width="28" height="28" alt="BKN"> ' + v;
-    }
+    return svg.node();
+}
 
+function draw_bar_chart(g, data) {
     // Add X axis
-    var x = d3.scaleLinear()
-        .domain([0, 13000])
-        .range([0, height]);
+    d3.select('#bar-chart').selectAll('*').remove();
+    var svg = d3.select('#bar-chart');
+    console.log(svg);
+
+    var x = d3.scaleBand()
+        .range([0, chart_width])
+        .domain(data.map(function (d) {
+            return d.name;
+        }))
+        .padding(0.2);
     svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + chart_height + ")")
         .call(d3.axisBottom(x))
         .selectAll("text")
         .attr("transform", "translate(-10,0)rotate(-45)")
         .style("text-anchor", "end");
 
-    // Y axis
-    var y = d3.scaleBand()
-        .range([0, width])
-        .domain(data.map(function (d) { return d.Country; }))
-        .padding(.1);
+    // Add Y axis
+    var y = d3.scaleLinear()
+        .domain([0, 1])
+        .range([chart_height, 0]);
     svg.append("g")
-        .call(d3.axisLeft(y))
+        .call(d3.axisLeft(y));
 
-    //Bars
-    svg.selectAll("myRect")
+
+    console.log(svg)
+    // Bars
+    svg.selectAll("mybar")
         .data(data)
         .enter()
         .append("rect")
-        .attr("x", x(0))
-        .attr("y", function (d) { return y(d.Country); })
-        .attr("width", function (d) { return x(d.Value); })
-        .attr("height", y.bandwidth())
+        .attr('id', 'team-bars')
+        .attr("x", function (d) {
+            return x(d.name);
+        })
+        .attr("y", function (d) {
+            return y(d.val);
+        })
+        .attr("width", x.bandwidth())
+        .attr("height", function (d) {
+            console.log(d.val);
+            console.log(y(d.val));
+            return chart_height - y(0); // always equal to 0
+        })
         .attr("fill", "#69b3a2")
+
+    // Animation
+    svg.selectAll("#team-bars")
+        .transition()
+        .duration(400)
+        .attr("y", function (d) { return y(d.val); })
+        .attr("height", function (d) { return chart_height - y(d.val); })
+        .delay(function (d, i) { console.log(i); return (i * 100) })
+
+    svg.selectAll("text.mybar")
+        .data(data)
+        .enter().append("text")
+        .attr("class", "bar")
+        .attr("text-anchor", "middle")
+        .attr("x", function (d) {
+            return x(d.name) + ((chart_width / data.length) / 2);
+        })
+        .attr("y", function (d) {
+            return y(d.val) - 5;
+        })
+        .text(function (d) { return (d.val * 100).toFixed(0) + '%'; });
 }
 
 function _reset_button(src) {
@@ -378,6 +436,7 @@ function _reset_button(src) {
         .style('stroke', '#add8e6')
         .on('click', function () {
             set_all_box_color(d3, src);
+            d3.select('#bar-chart').selectAll('*').remove();
         });
 
 }
@@ -388,11 +447,16 @@ function _reset_button(src) {
 async function main(d3, width) {
     // height = 1000;
     const src = await _src_data(d3);
-    console.log(src)
     const dst = await _dst_data(d3);
-    console.log(dst);
+    const src_raw = await _src_raw_data(d3);
+    const dst_raw = await _dst_raw_data(d3);
+    // console.log(src);
+    // console.log(dst);
+    // console.log(src_raw);
+    // console.log(dst_raw);
     const chart_data = await _load_chart_data(d3);
-    const chart = _chart(d3, width, height, src, dst, chart_data);
+    console.log(chart_data);
+    const chart = _chart(d3, width, height, src, dst, src_raw, dst_raw, chart_data);
     const reset_button = _reset_button(src);
 }
 
