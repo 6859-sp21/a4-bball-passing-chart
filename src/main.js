@@ -93,6 +93,8 @@ function set_all_box_color(g, intensity_2D, mouseover_vals, dst=true) {
                 .on('mouseleave', mouseleave)
         }
     }
+
+    console.log("dst = " + dst);
 }
 
 function draw_rectangle(i, j, dst, g, dst_mouseover, chart_data) {
@@ -475,7 +477,7 @@ function draw_bar_chart(g, data) {
         .text("Shot Percentage");
 }
 
-function _reset_button(src, src_raw) {
+function _reset_button(src, src_raw, dst=false) {
     // const svg = d3
     //     .select('#reset_button')
     //     .append('svg')
@@ -489,7 +491,7 @@ function _reset_button(src, src_raw) {
         .style('fill', 'brown')
         .style('stroke', '#add8e6')
         .on('click', function () {
-            set_all_box_color(d3, src, src_raw, dst=false);
+            set_all_box_color(d3, src, src_raw, dst=dst);
             d3.select('#bar-chart').selectAll('*').remove();
         });
 
