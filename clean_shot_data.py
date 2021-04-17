@@ -13,6 +13,8 @@ for k1, v1 in data.items():
         for team, val in v2.items():
             if val != None:
                 arr.append({"name": team, "val": val})
+            else: 
+                arr.append({"name": team, "val": 0})
         new_dict[k1][k2] = arr
 
 with open("src/shot_pct_cleaned.json", "w") as outfile:
