@@ -56,17 +56,18 @@ function set_all_box_color(g, intensity_2D, mouseover_vals) {
         var split_id = id.split('-');
         var a1 = parseInt(split_id[0]);
         var b1 = parseInt(split_id[1]);
-        console.log(d3.select(this).attr('id'));
-        console.log(id);
+        // console.log(d3.select(this).attr('id'));
+        // console.log(id);
         var coordinates = d3.mouse(this);
-        console.log(mouseover_vals);
-        console.log(a1 / 2);
-        console.log(b1 / 2);
+        console.log(coordinates);
+        console.log(d3.event.pageX)
+        // console.log(a1 / 2);
+        // console.log(b1 / 2);
 
         d3.select('#tooltip')
             .html("Passes from basketball to here: " + mouseover_vals[a1 / 2][b1 / 2])
-            .style("left", (coordinates[0] + 20) + "px")
-            .style("top", (coordinates[1] + 20) + "px")
+            .style("left", (d3.event.pageX + 20) + "px")
+            .style("top", (d3.event.pageY + 20) + "px")
     }
     var mouseleave = function (d) {
         d3.select('#tooltip')
@@ -360,7 +361,7 @@ function draw_bar_chart(g, data) {
     // Add X axis
     d3.select('#bar-chart').selectAll('*').remove();
     var svg = d3.select('#bar-chart');
-    console.log(svg);
+    // console.log(svg);
 
     var x = d3.scaleBand()
         .range([0, chart_width])
@@ -382,7 +383,7 @@ function draw_bar_chart(g, data) {
     svg.append("g")
         .call(d3.axisLeft(y));
 
-    console.log(svg)
+    // console.log(svg)
     // Bars
     svg.selectAll("mybar")
         .data(data)
@@ -400,8 +401,8 @@ function draw_bar_chart(g, data) {
         })
         .attr("width", x.bandwidth())
         .attr("height", function (d) {
-            console.log(d.val);
-            console.log(y(d.val));
+            // console.log(d.val);
+            // console.log(y(d.val));
             return chart_height - y(0); // always equal to 0
         })
         .attr("fill", "#983275")
