@@ -12,7 +12,7 @@ export default {
     warn(warning);
   },
   output: {
-    file: `public/main.min.js`,
+    file: `docs/main.min.js`,
     name: '${meta.name}',
     format: 'iife',
     indent: false,
