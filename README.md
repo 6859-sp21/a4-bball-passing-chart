@@ -74,8 +74,18 @@ After implementing the basic functionality, effort was focused on refining desig
 
 While Bhavik primarily handled the development of the visualization, Samir contributed to the tooltip design and animating the heatmap and bar chart.
 
+### Design ###
+
+*Visual Encoding- Court*: There are indeed a variety of ways we could have depicted the pass frequencies. We could have explored forward vs. backwards passes via histogram or bar chart. We could have explored pass vs. shot vs. dribble frequencies (all ordinal numerical variables). We figured, however, that a visualization of pass frequencies on a basketball court may lend itself to interesting and engaging conclusions or hypotheses. The format is familiar to basketball viewers, given that they've likely seen basketball courts and identify with notions of a '3-point-line' or 'foul-line' or 'the paint'. With that environment settled, we chose to use color as our primary encoding to allow for easy location-based comparisions. As we learned in class, though, color isn't necessarily the most intuitive encoding, so we've augmented the visual with a tooltip to provide more granular, accurate summary data. We've discretized the basketball court into 2ft by 2ft boxes, and assigned a shot frequency to each box. The 2ft discretization parameter was chosen after trial and error, as a balance between granularity and confusion/complexity of smaller boxes. 
+
+*Visual Encoding- Shot Percentage*: Shot percentages are a per-team, per-court-location statistic. In enabling comparisons between teams, we chose a bar-chart encoding scheme. The chart allows users to hover over specific bars to glean specific percentage statistics. While we'd originally depicted all percentages for the chart, our peer-reviewers suggested the appear-on-hover functionality to simplify the visualization. 
+
+*Interaction & Animation*: The tooltip for the court visual & hover for the bar chart remain our primary interactions. Both offer additional information upon engagement, information that may have been too complex or cluttered to statically display on the screen. We've added bar-appearance visualization that iteratively reveals the bars. The design decision here was to (1) gain more exposure to D3 animations, and (2) further catch the viewer's interest. The animation inadvertently compels viewers to explore the visualization until the animation completes. 
+
+*Color Pallette*: For the court heat-map visualization we chose the red-color-scale color set because (1) red color schemes are commonly associated with heatmaps, and (2) many shot-charts use red color schemes. Basketball fans used to seeing shot charts will, supposedly, quickly understand the chart simply from familiarity. The purple color scheme for the bottom chart is intended to be complimentary to the red scheme above. 
+
 ### Time ###
 
 *Samir:* Cleaning the data was by far the longest part of the process for me. There was a lot of tweaking and manipulating the data to get it preprocessed for the visualization. I probably spent 12 hours total between the passing data and shooting data, and another 3 hours tweaking the visualization. 
 
-*Bhavik:* 
+*Bhavik:* The front-end visuals took quite awhile. While we were both familiar with Python, D3 was new. Learning the language and building a novel visual, largely from stratch, was an interesting and useful endeavor. I spent 16 hours working on the front-end visualization, and 4 hours communicating with my partner. 
