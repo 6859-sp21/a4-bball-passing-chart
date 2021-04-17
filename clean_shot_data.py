@@ -10,7 +10,9 @@ for k1, v1 in data.items():
     new_dict[k1] = {}
     for k2, v2 in v1.items():
 
-        if int(k2) > 46:
+        print(k2)
+        if int(k2) > 23:
+            print("Skipping ", k1, k2)
             continue
 
         arr = []
@@ -20,7 +22,7 @@ for k1, v1 in data.items():
             else: 
                 arr.append({"name": team, "val": 0})
         new_dict[k1][k2] = arr
-        new_dict[k1][str(93-int(k2))] = arr
+        new_dict[k1][str(46-int(k2))] = arr
 
 with open("src/shot_pct_cleaned.json", "w") as outfile:
     json.dump(new_dict, outfile)
