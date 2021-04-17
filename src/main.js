@@ -42,7 +42,7 @@ function color(c) {
     return d3.scaleSequential(d3.interpolateOrRd).domain([0, 1])(c);
 }
 
-function set_all_box_color(g, intensity_2D, mouseover_vals) {
+function set_all_box_color(g, intensity_2D, mouseover_vals, dst=true) {
 
     var mouseover = function (d) {
         d3.select('#tooltip')
@@ -50,8 +50,7 @@ function set_all_box_color(g, intensity_2D, mouseover_vals) {
         d3.select(this)
             .style("stroke", "black")
             .style("opacity", 1)
-    }
-    var mousemove = function (d) {
+
         var id = d3.select(this).attr('id').substring(4);
         var split_id = id.split('-');
         var a1 = parseInt(split_id[0]);
@@ -61,11 +60,18 @@ function set_all_box_color(g, intensity_2D, mouseover_vals) {
         var coordinates = d3.mouse(this);
         console.log(coordinates);
         console.log(d3.event.pageX)
+
+        var tooltip_message = ''
+        if (dst) {
+            tooltip_message = 'Passes of basketball from chosen source to here: ';
+        } else {
+            tooltip_message = 'Passes of basketball originating here: ';
+        }
         // console.log(a1 / 2);
         // console.log(b1 / 2);
 
         d3.select('#tooltip')
-            .html("Passes from basketball to here: " + mouseover_vals[a1 / 2][b1 / 2])
+            .html(tooltip_message + mouseover_vals[a1 / 2][b1 / 2])
             .style("left", (d3.event.pageX + 20) + "px")
             .style("top", (d3.event.pageY + 20) + "px")
     }
@@ -84,7 +90,6 @@ function set_all_box_color(g, intensity_2D, mouseover_vals) {
                 .style('fill', color(intensity_2D[(a + 25) / 2][b / 2]))
                 .style('fill-opacity', '0.5')
                 .on('mouseover', mouseover)
-                .on('mousemove', mousemove)
                 .on('mouseleave', mouseleave)
         }
     }
@@ -342,7 +347,7 @@ function _chart(d3, width, height, src, dst, src_raw, dst_raw, chart_data) {
     // console.log('GOT HERE!');
     // console.log(src);
 
-    set_all_box_color(g, src, src_raw)
+    set_all_box_color(g, src, src_raw, dst=false)
     // console.log('AND HERE!');
 
     d3.select("#joyplot")
@@ -470,7 +475,7 @@ function draw_bar_chart(g, data) {
         .text("Shot Percentage");
 }
 
-function _reset_button(src) {
+function _reset_button(src, src_raw) {
     // const svg = d3
     //     .select('#reset_button')
     //     .append('svg')
@@ -484,7 +489,7 @@ function _reset_button(src) {
         .style('fill', 'brown')
         .style('stroke', '#add8e6')
         .on('click', function () {
-            set_all_box_color(d3, src);
+            set_all_box_color(d3, src, src_raw, dst=false);
             d3.select('#bar-chart').selectAll('*').remove();
         });
 
@@ -506,7 +511,7 @@ async function main(d3, width) {
     const chart_data = await _load_chart_data(d3);
     console.log(chart_data);
     const chart = _chart(d3, width, height, src, dst, src_raw, dst_raw, chart_data);
-    const reset_button = _reset_button(src);
+    const reset_button = _reset_button(src, src_raw);
 }
 
 main(d3, width);
