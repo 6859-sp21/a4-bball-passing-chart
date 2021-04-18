@@ -17,6 +17,7 @@ Most visualizations focus on shooting (appropriately so since that is how you wi
 The first decision was how we wanted to represent our passes. We knew we wanted to have some sort of *geographic* representation: the Goldsberry shot charts immediately grab your attention because you know what a basketball court looks like and you can visually navigate around the court. We wanted something similar, but needed to figure out how to encode something that had **two** details: a source and a destination. Our original ideas involved lines, as shown below. Either displaying courts side by side or with a transition between source and destination: 
 
 ![](https://imgur.com/WMQpbSV.jpg)
+
 ![](https://imgur.com/6lO2t8B.jpg)
 
 To begin, we started plotting out the data we had from the NBA...
@@ -59,8 +60,11 @@ Work was mostly split up between data side and visualization side. Samir focused
 The tracking data from the NBA required several steps to clean and process. Several hours went just into fine-tuning an algorithm to cycle through each play that we had data for and extract passes. Here are a few images representing steps along the way:
 
 ![](https://imgur.com/F0vkZOM.jpg)
+
 ![](https://imgur.com/lG8g8vz.jpg)
+
 ![](https://imgur.com/K7YONcP.jpg)
+
 For the shot percentage data, we similarly consolidated data from every shot attempted and made in the 2015-2016 season. This allowed us to preprocess the data: binning by location and calculating shot percentages by team. 
 
 While this was mostly done by Samir, Bhavik also contributed to cleaning the shot percentage data and formatting for JS. 
